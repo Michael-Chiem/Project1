@@ -1,9 +1,8 @@
-emailjs.init('e4IMeDjiTLqb2QzFb'); // Replace 'YOUR_USER_ID' with your EmailJS user ID
+emailjs.init('e4IMeDjiTLqb2QzFb'); //Your EmailJS user ID
 
-document.addEventListener('DOMContentLoaded', function() {
     var form = document.getElementById('emailForm');
 
-    form.addEventListener('submit', function(event) {
+    form.addEventListener('submit', function (event) {
         event.preventDefault();
 
         // Get form values
@@ -16,12 +15,26 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Schedule email sending logic here
-        console.log('Email:', email);
-        console.log('Time:', time);
+        // Convert time to milliseconds
+        var scheduledTime = new Date(time).getTime();
+        var currentTime = new Date().getTime();
 
-        // Fetch a random dad joke from the icanhazdadjoke API and send email
-        fetchDadJokeAndSendEmail(email, time);
+        // Check if the scheduled time is in the future
+        if (scheduledTime <= currentTime) {
+            alert('Please select a future time for sending the email.');
+            return;
+        }
+
+        // Calculate the delay until the scheduled time
+        var delay = scheduledTime - currentTime;
+
+        // Schedule email sending after the specified delay
+        setTimeout(function () {
+            // Fetch a random dad joke from the icanhazdadjoke API and send email
+            fetchDadJokeAndSendEmail(email);
+        }, delay);
+
+        console.log('Email will be sent at:', new Date(scheduledTime));
     });
 
     function isValidEmail(email) {
@@ -30,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return emailRegex.test(email);
     }
 
-    async function fetchDadJokeAndSendEmail(email, time) {
+    async function fetchDadJokeAndSendEmail(email) {
         try {
             // Fetch a random dad joke from the icanhazdadjoke API
             var response = await fetch('https://icanhazdadjoke.com/', {
@@ -55,12 +68,11 @@ document.addEventListener('DOMContentLoaded', function() {
             to_email: email,
             joke_content: joke
         })
-        .then(function(response) {
-            console.log('Email sent:', response);
-            alert('Email sent successfully!');
-        }, function(error) {
-            console.error('Error sending email:', error);
-            alert('Failed to send email. Please try again later.');
-        });
-    }
-});
+            .then(function (response) {
+                console.log('Email sent:', response);
+                alert('Email sent successfully!');
+            }, function (error) {
+                console.error('Error sending email:', error);
+                alert('Failed to send email. Please try again later.');
+            });
+    };
